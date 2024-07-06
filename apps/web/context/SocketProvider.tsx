@@ -1,6 +1,7 @@
 'use client'
 import React, { useCallback, useContext, useEffect, useState } from "react"
 import { io ,Socket} from 'socket.io-client'
+import { json } from "stream/consumers"
 
 
 interface SocketProvider {
@@ -9,6 +10,7 @@ interface SocketProvider {
 
 interface ISocketContext {
     sendMessage: (msg: string) => any
+    messages : string[]
 }
 
 const SocketContext = React.createContext<ISocketContext | null>(null)
@@ -22,6 +24,7 @@ export const useSocket = () => {
 export const SocketProvider: React.FC<SocketProvider> = ({ children }) => {
 
     const [socket,setSocket] =useState<Socket>()
+    const [messages,setMessages] = useState<string[]>([])
 
     const sendMessage: ISocketContext['sendMessage'] = useCallback((msg) => {
         console.log("Send Message", msg);
@@ -32,7 +35,8 @@ export const SocketProvider: React.FC<SocketProvider> = ({ children }) => {
 
     const onMessageRec = useCallback((msg:string)=>{
         console.log('From server msg received',msg);
-        
+        const message = JSON.parse(msg) as {message :string }
+        setMessages((prev) => [...prev , message.message])
     },[])
 
     useEffect(() => {
@@ -48,7 +52,7 @@ export const SocketProvider: React.FC<SocketProvider> = ({ children }) => {
     }, [])
 
     return (
-        <SocketContext.Provider value={{ sendMessage }}>
+        <SocketContext.Provider value={{ sendMessage ,messages}}>
             {children}
         </SocketContext.Provider>
     )
