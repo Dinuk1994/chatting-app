@@ -1,4 +1,5 @@
 import { Server, Socket } from "socket.io";
+import { Redis } from "ioredis";
 
 class SocketService {
     private _io :Server
