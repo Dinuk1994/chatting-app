@@ -3,7 +3,7 @@ import { Server, Socket } from "socket.io";
 class SocketService {
     private _io :Server
     constructor(){
-        console.log("init Socket Service....");   
+        console.log("init Socket Service...");   
         this._io = new Server({
             cors:{
                 allowedHeaders:['*'],
@@ -16,7 +16,7 @@ class SocketService {
         const io = this.io;
         console.log('Init Socket Listeners...');
         
-        io.on('connect',socket =>{
+        io.on('connect',(socket) =>{
             console.log('New Socket Connected',socket.id);
 
             socket.on('event:message',async({message}:{message:string})=>{
