@@ -1,5 +1,20 @@
+require('dotenv').config();
 import { Server, Socket } from "socket.io";
 import { Redis } from "ioredis";
+
+const pub = new Redis({
+    host: process.env.HOST,
+    port: 15416,
+    username:process.env.USERNAME,
+    password: process.env.PASSWORD
+});
+
+const sub = new Redis({
+    host: process.env.HOST,
+    port: 15416,
+    username:process.env.USERNAME,
+    password: process.env.PASSWORD
+});
 
 class SocketService {
     private _io :Server
@@ -11,6 +26,7 @@ class SocketService {
                 origin : "*"
             }
         });
+        sub.subscribe('MESSAGES')
     }
 
     public initListeners(){
@@ -22,7 +38,18 @@ class SocketService {
 
             socket.on('event:message',async({message}:{message:string})=>{
                 console.log('New message recieved', message);
+
+
+                //publishing message to redis
+
+                await pub.publish('MESSAGES',JSON.stringify({message}))
+
             })           
+        })   
+        sub.on('message',(channel,message)=>{
+            if(channel==='MESSAGES'){
+                io.emit('message',message)
+            }
         })
     }
 
