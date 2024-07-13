@@ -1,7 +1,10 @@
 require('dotenv').config();
 import { Server, Socket } from "socket.io";
 import { Redis } from "ioredis";
-
+import prismaClient from "./prisma";
+import { text } from "stream/consumers";
+import {produceMessage} from './kafka'
+ 
 const pub = new Redis({
     host: process.env.HOST,
     port: 15416,
@@ -39,18 +42,20 @@ class SocketService {
             socket.on('event:message',async({message}:{message:string})=>{
                 console.log('New message recieved', message);
 
-
                 //publishing message to redis
 
                 await pub.publish('MESSAGES',JSON.stringify({message}))
 
             })           
         })   
-        sub.on('message',(channel,message)=>{
+        sub.on ('message', async(channel,message)=>{
             if(channel==='MESSAGES'){
                 io.emit('message',message)
+                await produceMessage(message)
+                console.log("message produce to Kafka broker");
+                
             }
-        })
+        }) 
     }
 
     get io(){
@@ -58,4 +63,4 @@ class SocketService {
     }
 }
 
-export default SocketService;
+export default SocketService; 
