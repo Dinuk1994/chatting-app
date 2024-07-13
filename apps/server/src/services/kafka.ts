@@ -3,23 +3,16 @@ import { Kafka, Producer } from 'kafkajs';
 import fs from 'fs';
 import path from 'path';
 
-// Ensure that the environment variables are defined
-const KAFKA_USERNAME = process.env.KAFKA_USERNAME ;
-const KAFKA_PASSWORD = process.env.KAFKA_PASSWORD ;
 
-if (!KAFKA_USERNAME || !KAFKA_PASSWORD) {
-    throw new Error('KAFKA_USERNAME and KAFKA_PASSWORD must be defined');
-  }
-  
 
 const kafka = new Kafka({
     brokers: ['kafka-4ea2939-ddt94119-4e98.i.aivencloud.com:15429'],
     ssl: {
-        ca: [fs.readFileSync(path.resolve('./ca(1).pem'), 'utf-8')],
+        ca: [fs.readFileSync(path.resolve('./ca.pem'), 'utf-8')],
     },
     sasl: {
-        username: KAFKA_USERNAME,
-        password: KAFKA_PASSWORD,
+        username: 'avnadmin',
+        password: 'AVNS_TKoQ3S6p7mxuycX1cQ_',
         mechanism: 'plain',
     }
 });
@@ -43,6 +36,7 @@ export async function produceMessage(message: string) {
     })
     return true
 }
+
 
 
 export default kafka
